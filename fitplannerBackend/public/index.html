@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Principal</title>
+</head>
+<body>
+    <h1>Bem-vindo ao Fitplanner! 💪</h1>
+    <p id="boas-vindas"></p>
+
+    <script>
+        const usuario = localStorage.getItem("usuarioLogado");
+        document.getElementById("boas-vindas").textContent = `Logado como: ${usuario}`;
+    </script>
+</body>
+</html>

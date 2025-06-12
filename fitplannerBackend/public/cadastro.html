@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro - Academia</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #3a6186, #89253e);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .cadastro-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+    .btn-primary {
+      background-color: #3a6186;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #2c4d6e;
+    }
+    .link-voltar {
+      display: block;
+      margin-top: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="cadastro-container">
+    <h2>Cadastro de Aluno</h2>
+    <form id="form-cadastro">
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome Completo</label>
+        <input type="text" class="form-control" id="nome" placeholder="Digite seu nome" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <input type="email" class="form-control" id="email" placeholder="Digite seu email" required>
+      </div>
+      <div class="mb-3">
+        <label for="senha" class="form-label">Senha</label>
+        <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+      </div>
+      <div class="mb-3">
+        <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+        <input type="password" class="form-control" id="confirmarSenha" placeholder="Confirme sua senha"required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+    </form>
+    <a href="index.html" class="link-voltar">Voltar ao Login</a>
+  </div>
+</body>
+<script src="js/main.js"></script>
+</html>
