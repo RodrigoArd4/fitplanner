@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const Treino = require('./models/Treino');
+const Exercicio = require('./models/Exercicio');
 
 const app = express();
 const PORT = 3000;
@@ -105,5 +107,49 @@ app.post('/api/etapas', async (req, res) => {
     } catch (err) {
         console.error("Erro ao salvar etapa:", err);
         res.status(500).json({ message: "Erro ao salvar etapa." });
+    }
+});
+
+
+
+// Listar usuários
+app.get("/api/usuarios", async (req, res) => {
+    try {
+        const usuarios = await Usuario.find({}, "nome email"); // pega só nome e email
+        res.json(usuarios);
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao carregar usuários" });
+    }
+});
+
+// Listar exercícios
+app.get("/api/exercicios", async (req, res) => {
+    try {
+        const exercicios = await Exercicio.find({});
+        res.json(exercicios);
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao carregar exercícios" });
+    }
+});
+
+// Salvar treino personalizado
+app.post("/api/salvar-treino", async (req, res) => {
+    const { email, dia, exercicios } = req.body;
+
+    try {
+        const treinoExistente = await Treino.findOne({ email, dia });
+        if (treinoExistente) {
+            treinoExistente.exercicios = exercicios;
+            await treinoExistente.save();
+            return res.json({ message: "Treino atualizado com sucesso!" });
+        }
+
+        const novoTreino = new Treino({ email, dia, exercicios });
+        await novoTreino.save();
+
+        res.status(201).json({ message: "Treino salvo com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao salvar treino:", err);
+        res.status(500).json({ message: "Erro ao salvar treino." });
     }
 });
