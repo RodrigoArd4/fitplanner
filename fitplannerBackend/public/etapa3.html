@@ -16,7 +16,7 @@
             <h2 class="titulo">Dados Físicos<br>Atuais</h2>
         </div>
 
-        <form>
+        <form id="form-etapa3">
             <div class="mb-3">
                 <label class="form-label me-3">Sexo:</label>
                 <div class="btn-group" role="group">
@@ -30,17 +30,17 @@
 
             <div class="mb-3">
                 <label class="form-label">Idade:</label>
-                <input type="number" class="form-control" placeholder="Digite sua idade">
+                <input id="idade" type="number" class="form-control" placeholder="Digite sua idade">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Altura (cm):</label>
-                <input type="number" class="form-control" placeholder="Ex: 175">
+                <input id="altura" type="number" class="form-control" placeholder="Ex: 175">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Peso corporal atual (kg):</label>
-                <input type="number" class="form-control" placeholder="Ex: 70">
+                <input  id="peso" type="number" class="form-control" placeholder="Ex: 70">
             </div>
 
             <div class="mb-3">
@@ -56,16 +56,17 @@
 
             <div class="mb-4">
                 <label class="form-label">Condições médicas:</label>
-                <input type="text" class="form-control" placeholder="Ex: hipertensão, diabetes...">
+                <input id="condicoes" type="text" class="form-control" placeholder="Ex: hipertensão, diabetes...">
             </div>
 
             <div class="text-center">
-                <a href="#" class="btn btn-continuar">Continuar</a>
+                <button type="submit" class="btn btn-continuar">Continuar</button>
             </div>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+<script src="js/etapas.js"></script>
 
 </html>

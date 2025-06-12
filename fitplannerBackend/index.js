@@ -42,16 +42,34 @@ app.post('/api/cadastro', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, senha } = req.body;
 
-    try {
-        const usuario = await Usuario.findOne({ email, senha });
-        if (!usuario) return res.status(401).json({ message: "Email ou senha inválidos." });
+    console.log("Tentando login com:", email, senha);
 
-        res.status(200).json({ message: "Login bem-sucedido!", nome: usuario.nome });
+    try {
+        const usuario = await Usuario.findOne({ email });
+
+        if (!usuario) {
+            console.log("Usuário não encontrado");
+            return res.status(401).json({ message: "Email não encontrado." });
+        }
+
+        if (usuario.senha !== senha) {
+            console.log("Senha incorreta");
+            return res.status(401).json({ message: "Senha incorreta." });
+        }
+
+        console.log("Login bem-sucedido!");
+        res.status(200).json({
+            message: "Login bem-sucedido!",
+            nome: usuario.nome,
+            email: usuario.email,
+            etapasConcluidas: usuario.etapasConcluidas || 0
+        });
     } catch (err) {
         console.error("Erro ao logar:", err);
         res.status(500).json({ message: "Erro no servidor." });
     }
 });
+
 
 
 // Conexao mongoDB
@@ -65,4 +83,27 @@ mongoose.connect('mongodb+srv://admin:adminpass@cluster0.atczsyp.mongodb.net/fit
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+});
+
+//Salvando preferencias do usuario
+app.post('/api/etapas', async (req, res) => {
+    const { email, etapa, dados } = req.body;
+
+    try {
+        const usuario = await Usuario.findOne({ email });
+        if (!usuario) return res.status(404).json({ message: "Usuário não encontrado." });
+
+        // Salvar dados da etapa
+        if (!usuario.preferencias) {
+            usuario.preferencias = new Map();
+        }
+        usuario.preferencias.set(`etapa${etapa}`, dados)
+        usuario.etapasConcluidas = etapa; // marca que essa etapa foi concluída
+        await usuario.save();
+
+        res.status(200).json({ message: "Etapa salva com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao salvar etapa:", err);
+        res.status(500).json({ message: "Erro ao salvar etapa." });
+    }
 });

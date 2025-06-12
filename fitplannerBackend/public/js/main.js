@@ -37,24 +37,42 @@ document.addEventListener("DOMContentLoaded", () => {
             const email = document.getElementById("email").value;
             const senha = document.getElementById("senha").value;
 
-            const resposta = await fetch("http://localhost:3000/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, senha }),
-            });
+            try {
+                const resposta = await fetch("http://localhost:3000/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, senha }),
+                });
 
-            const dados = await resposta.json();
+                const dados = await resposta.json();
+                console.log("Resposta recebida:", resposta);
+                console.log("Dados do backend:", dados);
 
-            if (resposta.ok) {
-                alert("Login bem-sucedido!");
-                localStorage.setItem("usuarioLogado", email); // salva quem logou
-                window.location.href = "index.html"; // redireciona para a tela principal
-            } else {
-                alert(dados.message || "Falha no login");
+                if (resposta.ok) {
+                    localStorage.setItem("usuarioLogado", email);
+                    const etapa = dados.etapasConcluidas;
+
+                    if (etapa === 0) {
+                        window.location.href = "etapa1.html";
+                    } else if (etapa === 1) {
+                        window.location.href = "etapa2.html";
+                    } else if (etapa === 2) {
+                        window.location.href = "etapa3.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
+                } else {
+                    alert(dados.message || "Falha no login");
+                }
+            } catch (err) {
+                console.error("Erro ao tentar login:", err);
+                alert("Erro ao tentar login.");
             }
         });
     }
 });
+
+
 

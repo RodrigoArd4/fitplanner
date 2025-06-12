@@ -35,6 +35,10 @@ body {
     border-radius: 0.75rem;
     transition: background-color 0.3s ease;
 }
+.objetivo-btn.selecionado {
+    background-color: #28a745 !important; /* verde Bootstrap */
+    color: white;
+}
 
 .objetivo-btn:hover {
     background-color: #2c4d6e;
