@@ -43,9 +43,6 @@ app.post('/api/cadastro', async (req, res) => {
 // LOGIN
 app.post('/api/login', async (req, res) => {
     const { email, senha } = req.body;
-
-    console.log("Tentando login com:", email, senha);
-
     try {
         const usuario = await Usuario.findOne({ email });
 
@@ -137,19 +134,65 @@ app.post("/api/salvar-treino", async (req, res) => {
     const { email, dia, exercicios } = req.body;
 
     try {
-        const treinoExistente = await Treino.findOne({ email, dia });
-        if (treinoExistente) {
-            treinoExistente.exercicios = exercicios;
-            await treinoExistente.save();
-            return res.json({ message: "Treino atualizado com sucesso!" });
+        // Tenta atualizar o treino existente
+        const atualizado = await Treino.findOneAndUpdate(
+            { email, dia },
+            { $set: { exercicios } },
+            { new: true } // retorna o documento atualizado
+        );
+
+        if (atualizado) {
+            return res.status(200).json({ message: "Treino atualizado com sucesso!" });
         }
 
+        // Se não existe, cria um novo treino
         const novoTreino = new Treino({ email, dia, exercicios });
         await novoTreino.save();
 
-        res.status(201).json({ message: "Treino salvo com sucesso!" });
+        return res.status(201).json({ message: "Treino salvo com sucesso!" });
+
     } catch (err) {
         console.error("Erro ao salvar treino:", err);
-        res.status(500).json({ message: "Erro ao salvar treino." });
+        return res.status(500).json({ message: "Erro ao salvar treino." });
     }
 });
+
+
+// Rota para buscar o treino do dia de um usuário
+app.get('/api/treino-do-dia', async (req, res) => {
+    const { email, dia } = req.query;
+    try {
+        const treino = await Treino.findOne({ email, dia });
+        if (!treino) {
+            return res.status(200).json({ exercicios: [] }); // Sem treino, mas resposta OK
+        }
+
+        res.status(200).json(treino);
+    } catch (err) {
+        console.error("Erro ao buscar treino do dia:", err);
+        res.status(500).json({ message: "Erro ao buscar treino." });
+    }
+});
+
+app.post("/api/marcar-exercicio", async (req, res) => {
+    const { email, dia, nome, feito } = req.body;
+
+    try {
+        const treino = await Treino.findOne({ email, dia });
+        if (!treino) return res.status(404).json({ message: "Treino não encontrado." });
+
+        const ex = treino.exercicios.find(e => e.nome === nome);
+        if (ex) {
+            ex.feito = feito;
+            await treino.save();
+            return res.json({ message: "Exercício atualizado com sucesso." });
+        }
+
+        res.status(404).json({ message: "Exercício não encontrado." });
+    } catch (err) {
+        console.error("Erro ao atualizar exercício:", err);
+        res.status(500).json({ message: "Erro ao atualizar exercício." });
+    }
+});
+
+

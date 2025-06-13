@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else if (etapa === 2) {
                         window.location.href = "etapa3.html";
                     } else {
-                        window.location.href = "index.html";
+                        window.location.href = "dashboard.html";
                     }
                 } else {
                     alert(dados.message || "Falha no login");

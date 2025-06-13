@@ -67,8 +67,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     salvarBtn.addEventListener("click", async () => {
         const email = usuarioSelect.value;
         const dia = document.getElementById("diaSemana").value;
-        const selecionados = [...document.querySelectorAll("#listaExercicios input:checked")].map(input => input.value);
-
+        const selecionados = [...document.querySelectorAll("#listaExercicios input:checked")].map(input => ({
+            nome: input.value,
+            feito: false
+        }));
         if (!email || selecionados.length === 0) {
             alert("Selecione um usuário e ao menos um exercício.");
             return;
