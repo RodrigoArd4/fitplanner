@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const Treino = require('./models/Treino');
 const Exercicio = require('./models/Exercicio');
-
+const TreinoPronto = require('./models/TreinoPronto');
 const app = express();
 const PORT = 3000;
 
@@ -61,7 +61,8 @@ app.post('/api/login', async (req, res) => {
             message: "Login bem-sucedido!",
             nome: usuario.nome,
             email: usuario.email,
-            etapasConcluidas: usuario.etapasConcluidas || 0
+            etapasConcluidas: usuario.etapasConcluidas || 0,
+            admin: usuario.admin || false
         });
     } catch (err) {
         console.error("Erro ao logar:", err);
@@ -164,7 +165,7 @@ app.get('/api/treino-do-dia', async (req, res) => {
     try {
         const treino = await Treino.findOne({ email, dia });
         if (!treino) {
-            return res.status(200).json({ exercicios: [] }); // Sem treino, mas resposta OK
+            return res.status(200).json({ exercicios: [] });
         }
 
         res.status(200).json(treino);
@@ -174,6 +175,7 @@ app.get('/api/treino-do-dia', async (req, res) => {
     }
 });
 
+//Rota para marcar exercicio como concluido e salvar no banco
 app.post("/api/marcar-exercicio", async (req, res) => {
     const { email, dia, nome, feito } = req.body;
 
@@ -194,5 +196,142 @@ app.post("/api/marcar-exercicio", async (req, res) => {
         res.status(500).json({ message: "Erro ao atualizar exercício." });
     }
 });
+
+// Criar novo exercício
+app.post('/api/exercicios', async (req, res) => {
+    try {
+        const { nome, grupo, descricao } = req.body;
+        const novo = new Exercicio({ nome, grupo, descricao });
+        await novo.save();
+        res.status(201).json({ message: "Exercício criado com sucesso!" });
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao criar exercício." });
+    }
+});
+
+// Atualizar exercício existente
+app.put('/api/exercicios/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nome, grupo, descricao } = req.body;
+        await Exercicio.findByIdAndUpdate(id, { nome, grupo, descricao });
+        res.json({ message: "Exercício atualizado com sucesso!" });
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao atualizar exercício." });
+    }
+});
+
+// Deletar exercício
+app.delete('/api/exercicios/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Exercicio.findByIdAndDelete(id);
+        res.json({ message: "Exercício deletado com sucesso!" });
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao deletar exercício." });
+    }
+});
+
+// Listar todos os usuários com mais campos (para admin)
+app.get("/api/usuarios-completo", async (req, res) => {
+    try {
+        const usuarios = await Usuario.find({}, "nome email admin");
+        res.json(usuarios);
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao carregar usuários" });
+    }
+});
+
+// Atualizar um usuário
+app.put("/api/usuarios/:id", async (req, res) => {
+    const { nome, email, admin } = req.body;
+    try {
+        await Usuario.findByIdAndUpdate(req.params.id, { nome, email, admin });
+        res.json({ message: "Usuário atualizado com sucesso!" });
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao atualizar usuário" });
+    }
+});
+
+// Deletar um usuário
+app.delete("/api/usuarios/:id", async (req, res) => {
+    try {
+        await Usuario.findByIdAndDelete(req.params.id);
+        res.json({ message: "Usuário excluído com sucesso!" });
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao excluir usuário" });
+    }
+});
+
+// Criar treino 
+app.post("/api/treino-pronto", async (req, res) => {
+    const { nome, exercicios } = req.body;
+
+    try {
+        const novoTreino = new TreinoPronto({ nome, exercicios });
+        await novoTreino.save();
+        res.status(201).json({ message: "Treino criado com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao salvar treino:", err);
+        res.status(500).json({ message: "Erro ao salvar treino." });
+    }
+});
+
+// Listar todos treinos prontos
+app.get("/api/treinos-prontos", async (req, res) => {
+    try {
+        const treinos = await TreinoPronto.find({});
+        res.status(200).json(treinos);
+    } catch (err) {
+        res.status(500).json({ message: "Erro ao buscar treinos." });
+    }
+});
+
+// Atribuir treino ao usuário
+app.post("/api/atribuir-treino", async (req, res) => {
+    const { email, dia, treinoId } = req.body;
+
+    try {
+        const treinoPronto = await TreinoPronto.findById(treinoId);
+        if (!treinoPronto) {
+            return res.status(404).json({ message: "Treino não encontrado." });
+        }
+
+        const novoTreino = {
+            email,
+            dia,
+            exercicios: treinoPronto.exercicios.map(ex => ({ nome: ex.nome, feito: false })),
+        };
+
+        // Se já existe treino naquele dia, atualiza
+        const atualizado = await Treino.findOneAndUpdate(
+            { email, dia },
+            { $set: novoTreino },
+            { upsert: true, new: true }
+        );
+
+        res.json({ message: "Treino atribuído com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao atribuir treino:", err);
+        res.status(500).json({ message: "Erro ao atribuir treino." });
+    }
+});
+
+//Deletar treino tabela
+app.delete("/api/treino-pronto/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletado = await TreinoPronto.findByIdAndDelete(id);
+        if (!deletado) {
+            return res.status(404).json({ message: "Treino pronto não encontrado." });
+        }
+        res.status(200).json({ message: "Treino pronto excluído com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao excluir treino pronto:", err);
+        res.status(500).json({ message: "Erro ao excluir treino pronto." });
+    }
+});
+
 
 

@@ -47,21 +47,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const dados = await resposta.json();
-                console.log("Resposta recebida:", resposta);
-                console.log("Dados do backend:", dados);
 
                 if (resposta.ok) {
                     localStorage.setItem("usuarioLogado", email);
-                    const etapa = dados.etapasConcluidas;
 
-                    if (etapa === 0) {
-                        window.location.href = "etapa1.html";
-                    } else if (etapa === 1) {
-                        window.location.href = "etapa2.html";
-                    } else if (etapa === 2) {
-                        window.location.href = "etapa3.html";
+                    if (dados.admin) {
+                        localStorage.setItem("admin", "true");
+                        window.location.href = "adminDashboard.html";
                     } else {
-                        window.location.href = "dashboard.html";
+                        localStorage.setItem("admin", "false");
+
+                        const etapa = dados.etapasConcluidas;
+                        if (etapa === 0) {
+                            window.location.href = "etapa1.html";
+                        } else if (etapa === 1) {
+                            window.location.href = "etapa2.html";
+                        } else if (etapa === 2) {
+                            window.location.href = "etapa3.html";
+                        } else {
+                            window.location.href = "dashboard.html";
+                        }
                     }
                 } else {
                     alert(dados.message || "Falha no login");
@@ -73,6 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+
 
 
 
