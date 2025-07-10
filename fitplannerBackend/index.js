@@ -75,7 +75,7 @@ app.post('/api/login', async (req, res) => {
 // Conexao mongoDB
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://admin:adminpass@cluster0.atczsyp.mongodb.net/fitplanner?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect('mongodb+srv://admin:admin@cluster0.atczsyp.mongodb.net/fitplanner?retryWrites=true&w=majority&appName=Cluster0')
     .then(() => console.log("✅ Conectado ao MongoDB Atlas"))
     .catch((err) => console.error("Erro na conexão:", err));
 
